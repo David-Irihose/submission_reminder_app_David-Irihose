@@ -10,3 +10,4 @@ It uses simple shell scripts, organized into folders automatically by
    ```bash
    chmod +x create_environment.sh copilot_shell_script.sh
 
+“Updated README and added new feature ”
