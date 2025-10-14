@@ -1,97 +1,109 @@
 #!/bin/bash
 
 # Prompt user for their name
-echo "Enter your name:"
+echo -n "Enter your name: "
 read username
 
 # Create main directory
 main_dir="submission_reminder_${username}"
 mkdir -p $main_dir
 
-echo "✅ Directory '$main_dir' created."
+echo "Directory '$main_dir' created."
 
 # Create subdirectories
 mkdir -p $main_dir/config
-mkdir -p $main_dir/scripts
-mkdir -p $main_dir/data
+mkdir -p $main_dir/app
+mkdir -p $main_dir/modules
 mkdir -p $main_dir/assets
 
-echo "✅ Subdirectories created (config, scripts, data, assets)."
-
-# Create image placeholder
-touch $main_dir/assets/image.png
+echo "Subdirectories created (config, scripts, data, assets)."
 
 # Create submissions.txt with extra records
-cat > $main_dir/data/submissions.txt <<EOL
-Name,Assignment,Status
-Alice,Assignment1,Submitted
-Bob,Assignment1,Pending
-Clara,Assignment1,Submitted
-David,Assignment1,Pending
-Eve,Assignment1,Submitted
-Frank,Assignment1,Pending
-Grace,Assignment1,Submitted
-Helen,Assignment1,Pending
-Ian,Assignment1,Submitted
-Jane,Assignment1,Pending
+cat > $main_dir/assets/submissions.txt <<EOL
+student, assignment, submission status
+Chinemerem, Shell Navigation, not submitted
+Chiagoziem, Git, submitted
+Divine, Shell Navigation, not submitted
+Anissa, Shell Basics, submitted
+Alice,Shell Basics,Submitted
+Bob,Python,Pending
+Clara, Shell Permissions,Submitted
+David, Shell Signals,Pending
+Eve, Shell proccess,Submitted
 EOL
 
-echo "✅ submissions.txt created with 10 student records."
+echo "submissions.txt created with 9 student records."
 
 # Create config.env
 cat > $main_dir/config/config.env <<EOL
-# Configuration for Reminder App
-ASSIGNMENT="Assignment1"
-REMINDER_MESSAGE="You have not submitted your assignment yet!"
+# This is the config file
+ASSIGNMENT="Shell Navigation"
+DAYS_REMAINING=2
 EOL
 
-echo "✅ config.env created."
+echo "config.env created."
 
 # Create functions.sh
-cat > $main_dir/scripts/functions.sh <<'EOL'
+cat > $main_dir/modules/functions.sh <<'EOL'
 #!/bin/bash
-show_pending_students() {
-  echo "🔍 Checking for pending submissions..."
-  grep "Pending" ../data/submissions.txt | cut -d',' -f1
+
+# Function to read submissions file and output students who have not submitted
+function check_submissions {
+    local submissions_file=$1
+    echo "Checking submissions in $submissions_file"
+
+    # Skip the header and iterate through the lines
+    while IFS=, read -r student assignment status; do
+        # Remove leading and trailing whitespace
+        student=$(echo "$student" | xargs)
+        assignment=$(echo "$assignment" | xargs)
+        status=$(echo "$status" | xargs)
+
+        # Check if assignment matches and status is 'not submitted'
+        if [[ "$assignment" == "$ASSIGNMENT" && "$status" == "not submitted" ]]; then
+            echo "Reminder: $student has not submitted the $ASSIGNMENT assignment!"
+        fi
+    done < <(tail -n +2 "$submissions_file") # Skip the header
 }
 EOL
 
-echo "✅ functions.sh created."
+echo "functions.sh created."
 
 # Create reminder.sh
-cat > $main_dir/scripts/reminder.sh <<'EOL'
+cat > $main_dir/app/reminder.sh <<'EOL'
 #!/bin/bash
-source ./functions.sh
-source ../config/config.env
 
-echo "📢 Reminder for $ASSIGNMENT:"
-pending_students=$(show_pending_students)
+# Source environment variables and helper functions
+source ./config/config.env
+source ./modules/functions.sh
 
-if [ -z "$pending_students" ]; then
-  echo "🎉 All students have submitted!"
-else
-  echo "⚠️ Students to remind:"
-  echo "$pending_students"
-  echo "$REMINDER_MESSAGE"
-fi
+# Path to the submissions file
+submissions_file="./assets/submissions.txt"
+
+# Print remaining time and run the reminder function
+echo "Assignment: $ASSIGNMENT"
+echo "Days remaining to submit: $DAYS_REMAINING days"
+echo "--------------------------------------------"
+
+check_submissions $submissions_file
 EOL
 
-echo "✅ reminder.sh created."
+echo "reminder.sh created."
 
 # Create startup.sh
-cat > $main_dir/scripts/startup.sh <<'EOL'
+cat > $main_dir/startup.sh <<'EOL'
 #!/bin/bash
-echo "🚀 Starting Submission Reminder App..."
+echo "Starting Submission Reminder App..."
 bash ./reminder.sh
 EOL
 
-echo "✅ startup.sh created."
+echo "startup.sh created."
 
 # Make all .sh scripts executable
 chmod +x $main_dir/scripts/*.sh
 
-echo "🎯 All scripts made executable."
-echo "✅ Environment setup complete!"
+echo "All scripts made executable."
+echo "Environment setup complete!"
 echo "Run the app by navigating to: cd $main_dir/scripts"
 echo "Then type: ./startup.sh"
 
