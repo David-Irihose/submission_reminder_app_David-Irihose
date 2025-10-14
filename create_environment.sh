@@ -100,7 +100,10 @@ EOL
 echo "startup.sh created."
 
 # Make all .sh scripts executable
-chmod +x $main_dir/scripts/*.sh
+chmod +x $main_dir/app/*.sh
+chmod +x $main_dir/modules/*.sh
+chmod +x $main_dir/*.sh
+
 
 echo "All scripts made executable."
 echo "Environment setup complete!"
