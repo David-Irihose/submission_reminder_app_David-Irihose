@@ -1,25 +1,24 @@
 #!/bin/bash
 
-# Ask user for new assignment name
-echo "Enter new assignment name (no spaces, use underscores):"
+# Prompt user for the new assignment name
+echo -n "Enter the new assignment name: "
 read new_assignment
 
-# File paths
-CONFIG_FILE="submission_reminder_Irihose/config/config.env"
-TMP_FILE="submission_reminder_Irihose/config/config.tmp"
+# Define the path to the config file
+config_file="./config/config.env"
 
-# Make sure the file is writable
-chmod u+w $CONFIG_FILE
+# Check if config file exists
+if [ ! -f "$config_file" ]; then
+    echo "Error: Config file not found at $config_file"
+    exit 1
+fi
 
-# Replace ASSIGNMENT line safely (macOS compatible)
-awk -v new="$new_assignment" 'BEGIN{FS=OFS="="} /^ASSIGNMENT=/ 
-{$2="\""new"\""} {print}' $CONFIG_FILE > $TMP_FILE
-mv $TMP_FILE $CONFIG_FILE
+# Update the ASSIGNMENT value using sed
+sed -i "s/^ASSIGNMENT=.*/ASSIGNMENT=\"$new_assignment\"/" "$config_file"
 
-echo "✅ Assignment name updated to: $new_assignment"
+echo "Assignment name updated to '$new_assignment' in $config_file"
+echo "---------------------------------------------"
 
-# Run the app
-cd submission_reminder_Irihose/scripts
-./startup.sh
-
-
+# Re-run the startup.sh script to check submissions for the new assignment
+echo "Running the startup script for updated assignment..."
+bash ./startup.sh
