@@ -19,7 +19,7 @@ mkdir -p $main_dir/assets
 echo "Subdirectories created (config, scripts, data, assets)."
 
 # Create submissions.txt with extra records
-cat > $main_dir/assets/submissions.txt <<EOL
+cat > $main_dir/assets/submissions.txt <<code
 student, assignment, submission status
 Chinemerem, Shell Navigation, not submitted
 Chiagoziem, Git, submitted
@@ -30,21 +30,21 @@ Bob,Python,Pending
 Clara, Shell Permissions,Submitted
 David, Shell Signals,Pending
 Eve, Shell proccess,Submitted
-EOL
+code
 
 echo "submissions.txt created with 9 student records."
 
 # Create config.env
-cat > $main_dir/config/config.env <<EOL
+cat > $main_dir/config/config.env <<code
 # This is the config file
 ASSIGNMENT="Shell Navigation"
 DAYS_REMAINING=2
-EOL
+code
 
 echo "config.env created."
 
 # Create functions.sh
-cat > $main_dir/modules/functions.sh <<'EOL'
+cat > $main_dir/modules/functions.sh <<'code'
 #!/bin/bash
 
 # Function to read submissions file and output students who have not submitted
@@ -65,12 +65,12 @@ function check_submissions {
         fi
     done < <(tail -n +2 "$submissions_file") # Skip the header
 }
-EOL
+code
 
 echo "functions.sh created."
 
 # Create reminder.sh
-cat > $main_dir/app/reminder.sh <<'EOL'
+cat > $main_dir/app/reminder.sh <<'code'
 #!/bin/bash
 
 # Source environment variables and helper functions
@@ -86,16 +86,21 @@ echo "Days remaining to submit: $DAYS_REMAINING days"
 echo "--------------------------------------------"
 
 check_submissions $submissions_file
-EOL
+code
 
 echo "reminder.sh created."
 
 # Create startup.sh
-cat > $main_dir/startup.sh <<'EOL'
+cat > $main_dir/startup.sh <<'code'
 #!/bin/bash
 echo "Starting Submission Reminder App..."
-bash ./reminder.sh
-EOL
+
+main_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+cd "$main_dir"
+
+bash "$main_dir/app/reminder.sh"
+code
 
 echo "startup.sh created."
 
