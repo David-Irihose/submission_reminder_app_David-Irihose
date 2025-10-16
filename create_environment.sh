@@ -94,7 +94,12 @@ echo "reminder.sh created."
 cat > $main_dir/startup.sh <<'EOL'
 #!/bin/bash
 echo "Starting Submission Reminder App..."
-bash ./reminder.sh
+
+main_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+cd "$main_dir"
+
+bash "$main_dir/app/reminder.sh"
 EOL
 
 echo "startup.sh created."
